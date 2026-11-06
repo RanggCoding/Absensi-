@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Absensi Digital</title>
+    <!-- Tailwind CSS untuk styling yang rapi dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Library untuk QR Code Generator & Scanner -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+    <!-- Container Utama -->
+    <div id="app" class="container mx-auto p-4 max-w-4xl">
+        
+        <!-- HEADER -->
+        <header class="bg-indigo-600 text-white p-4 rounded-xl shadow-md mb-6 flex justify-between items-center">
+            <h1 class="text-xl font-bold">🏫 Absensi Digital Sekolah</h1>
+            <div id="user-info" class="hidden flex items-center gap-4">
+                <span id="welcome-msg" class="text-sm font-medium"></span>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded text-sm font-semibold transition">Logout</button>
+            </div>
+        </header>
+
+        <!-- SECTION: AUTH (LOGIN & DAFTAR) -->
+        <section id="auth-section" class="bg-white p-6 rounded-xl shadow-md max-w-md mx-auto">
+            <h2 id="auth-title" class="text-2xl font-bold mb-4 text-center text-gray-800">Login / Daftar</h2>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Pilih Peran:</label>
+                <select id="role-select" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="siswa">Siswa</option>
+                    <option value="guru">Guru</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Username / Nama:</label>
+                <input type="text" id="username-input" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Masukkan username...">
+            </div>
+
+            <div class="mb-4" id="password-group">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Password (Khusus Guru):</label>
+                <input type="password" id="password-input" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Kosongkan jika siswa...">
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="login()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg transition">Login</button>
+                <button onclick="register()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition">Daftar (Siswa)</button>
+            </div>
+        </section>
+
+        <!-- SECTION: DASHBOARD SISWA -->
+        <section id="siswa-dashboard" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">📝 Menu Absensi</h2>
+                
+                <!-- Metode 1: Ketik Nama -->
+                <div class="mb-6 border-b pb-4">
+                    <h3 class="font-semibold text-gray-700 mb-2">Metode 1: Ketik Nama Manual</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="absen-nama-manual" placeholder="Ketik nama lengkap..." class="flex-1 p-2 border rounded-lg">
+                        <button onclick="submitAbsen('Ketik Manual')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold">Kirim Absen</button>
+                    </div>
+                </div>
+
+                <!-- Metode 2: QR Code -->
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">Metode 2: Scan QR Code</h3>
+                    <div id="reader" class="w-full max-w-sm mx-auto mb-2"></div>
+                    <p class="text-xs text-gray-500 text-center">Arahkan kamera ke QR Code yang diberikan guru.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: PANEL GURU -->
+        <section id="guru-dashboard" class="hidden space-y-6">
+            <!-- Panel Generate QR -->
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">🖨️ Generator QR Code Absensi</h2>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Nama / Keterangan QR:</label>
+                    <input type="text" id="qr-text-input" placeholder="Contoh: Sesi Pagi - 7 November" class="w-full p-2 border rounded-lg mb-2">
+                    <button onclick="generateQR()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg">Generate QR</button>
+                </div>
+                <div id="qrcode-container" class="flex justify-center p-4 bg-gray-50 rounded-lg border"></div>
+            </div>
+
+            <!-- Panel Data Kehadiran -->
+            <div class="bg-white p-6 rounded-xl shadow-md">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">📊 Rekap Data Siswa Hadir</h2>
+                    <button onclick="loadDataAbsen()" class="text-sm bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">Refresh Data</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-200 text-gray-700 text-sm">
+                                <th class="p-2 border">No</th>
+                                <th class="p-2 border">Nama</th>
+                                <th class="p-2 border">Jam Hadir</th>
+                                <th class="p-2 border">Status</th>
+                                <th class="p-2 border">Metode</th>
+                            </tr>
+                        </thead>
+                        <tbody id="absen-table-body" class="text-sm text-gray-600">
+                            <!-- Data akan dimasukkan lewat JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- JavaScript Logika Aplikasi -->
+    <script>
+        // Simulasi Database LocalStorage
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+        window.onload = function() {
+            checkAuth();
+        };
+
+        function checkAuth() {
+            if (currentUser) {
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('user-info').classList.remove('hidden');
+                document.getElementById('welcome-msg').innerText = `Halo, ${currentUser.username} (${currentUser.role})`;
+
+                if (currentUser.role === 'guru') {
+                    document.getElementById('guru-dashboard').classList.remove('hidden');
+                    loadDataAbsen();
+                } else {
+                    document.getElementById('siswa-dashboard').classList.remove('hidden');
+                    initQrScanner();
+                }
+            } else {
+                document.getElementById('auth-section').classList.remove('hidden');
+                document.getElementById('user-info').classList.add('hidden');
+                document.getElementById('siswa-dashboard').classList.add('hidden');
+                document.getElementById('guru-dashboard').classList.add('hidden');
+            }
+        }
+
+        function register() {
+            const role = document.getElementById('role-select').value;
+            const username = document.getElementById('username-input').value.trim();
+            
+            if(!username) {
+                alert('Username tidak boleh kosong!');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            if(users.some(u => u.username === username)) {
+                alert('Username sudah terdaftar!');
+                return;
+            }
+
+            users.push({ username, role });
+            localStorage.setItem('users', JSON.stringify(users));
+            alert('Pendaftaran berhasil! Silakan login.');
+        }
+
+        function login() {
+            const role = document.getElementById('role-select').value;
+            const username = document.getElementById('username-input').value.trim();
+            const password = document.getElementById('password-input').value;
+
+            if (role === 'guru') {
+                if (username === 'guru' && password === 'guru123') {
+                    currentUser = { username: 'Guru Piket', role: 'guru' };
+                } else {
+                    alert('Username atau Password Guru salah! (Hint: guru / guru123)');
+                    return;
+                }
+            } else {
+                let users = JSON.parse(localStorage.getItem('users')) || [];
+                let found = users.find(u => u.username === username && u.role === 'siswa');
+                if (found) {
+                    currentUser = found;
+                } else {
+                    // Auto register jika siswa baru langsung login
+                    currentUser = { username: username || 'Siswa Tamu', role: 'siswa' };
+                }
+            }
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            checkAuth();
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            location.reload();
+        }
+
+        // Fungsi Absensi dengan Validasi Jam 7 Pagi
+        function submitAbsen(metode, namaScan = null) {
+            let nama = namaScan || document.getElementById('absen-nama-manual').value.trim();
+            if (!nama) {
+                alert('Nama harus diisi!');
+                return;
+            }
+
+            const now = new Date();
+            const jamStr = now.toTimeString().split(' ')[0]; // Format HH:MM:SS
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+
+            // Aturan Terlambat: Di atas jam 07:00 pagi (07:01 ke atas)
+            let status = 'HADIR';
+            if (hours > 7 || (hours === 7 && minutes > 0)) {
+                status = 'TERLAMBAT';
+            }
+
+            let dataAbsen = JSON.parse(localStorage.getItem('dataAbsen')) || [];
+            dataAbsen.push({
+                nama: nama,
+                jam: jamStr,
+                status: status,
+                metode: metode
+            });
+
+            localStorage.setItem('dataAbsen', JSON.stringify(dataAbsen));
+            alert(`Absensi Berhasil!\nStatus: ${status}\nJam: ${jamStr}`);
+            document.getElementById('absen-nama-manual').value = '';
+        }
+
+        // Generate QR Code oleh Guru
+        function generateQR() {
+            const text = document.getElementById('qr-text-input').value.trim();
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = '';
+            
+            if(!text) {
+                alert('Masukkan teks/nama untuk QR Code!');
+                return;
+            }
+
+            new QRCode(container, {
+                text: text,
+                width: 180,
+                height: 180
+            });
+        }
+
+        // Load Tabel Data Absensi untuk Guru
+        function loadDataAbsen() {
+            const tbody = document.getElementById('absen-table-body');
+            tbody.innerHTML = '';
+            let dataAbsen = JSON.parse(localStorage.getItem('dataAbsen')) || [];
+
+            if(dataAbsen.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Belum ada data absensi.</td></tr>`;
+                return;
+            }
+
+            dataAbsen.forEach((item, index) => {
+                const badgeColor = item.status === 'HADIR' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+                tbody.innerHTML += `
+                    <tr class="border-b">
+                        <td class="p-2 border">${index + 1}</td>
+                        <td class="p-2 border font-medium">${item.nama}</td>
+                        <td class="p-2 border">${item.jam}</td>
+                        <td class="p-2 border"><span class="px-2 py-1 rounded text-xs font-bold ${badgeColor}">${item.status}</span></td>
+                        <td class="p-2 border">${item.metode}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Inisialisasi Scanner QR menggunakan kamera perangkat
+        function initQrScanner() {
+            const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+            scanner.render((decodedText) => {
+                // Ketika QR berhasil di-scan, otomatis kirim absen berdasarkan teks QR
+                submitAbsen('Scan QR', decodedText);
+            }, (error) => {
+                // Handle scan error (opsional dibiarkan kosong agar konsol bersih)
+            });
+        }
+    </script>
+</body>
+  </html>
+  
