@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Absensi Digital Modern</title>
+    <title>Aplikasi Absensi Digital Multi-Role</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- QR Code Generator & Scanner Library -->
+    <!-- Library QR Code -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
 
@@ -21,103 +19,97 @@
     <div class="container mx-auto p-4 sm:p-6 max-w-4xl flex-grow">
         
         <!-- HEADER -->
-        <header class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-5 rounded-2xl shadow-lg mb-8 flex justify-between items-center transition-all">
+        <header class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-5 rounded-2xl shadow-lg mb-8 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <span class="text-3xl">🎓</span>
+                <span class="text-3xl">🏫</span>
                 <div>
                     <h1 class="text-lg sm:text-xl font-bold tracking-tight">Absensi Digital Sekolah</h1>
-                    <p class="text-xs text-indigo-200">Sistem Kehadiran Cepat & Real-Time</p>
+                    <p class="text-xs text-indigo-200">Sistem Kehadiran Terpadu & Real-Time</p>
                 </div>
             </div>
             <div id="user-info" class="hidden flex items-center gap-3">
                 <span id="welcome-msg" class="text-xs sm:text-sm font-medium bg-white/10 px-3 py-1.5 rounded-full border border-white/20"></span>
-                <button onclick="logout()" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition transform active:scale-95">Logout</button>
+                <button onclick="logout()" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition">Logout</button>
             </div>
         </header>
 
-        <!-- SECTION: AUTH (LOGIN & DAFTAR) -->
+        <!-- SECTION: AUTH (LOGIN) -->
         <section id="auth-section" class="bg-white p-8 rounded-3xl shadow-xl max-w-md mx-auto border border-slate-100">
             <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold text-slate-900">Selamat Datang 👋</h2>
-                <p class="text-sm text-slate-500 mt-1">Silakan masuk atau daftar untuk mulai absen</p>
+                <h2 class="text-2xl font-bold text-slate-900">Silakan Masuk 👋</h2>
+                <p class="text-sm text-slate-500 mt-1">Masukkan kredensial akun Anda</p>
             </div>
             
             <div class="space-y-4">
                 <div>
-                    <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Pilih Peran:</label>
-                    <select id="role-select" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
-                        <option value="siswa">Siswa</option>
-                        <option value="guru">Guru</option>
-                    </select>
+                    <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Username:</label>
+                    <input type="text" id="login-username" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Username...">
                 </div>
 
                 <div>
-                    <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Username / Nama:</label>
-                    <input type="text" id="username-input" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" placeholder="Masukkan nama/username...">
+                    <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Password:</label>
+                    <input type="password" id="login-password" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Password...">
                 </div>
 
-                <div id="password-group">
-                    <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Password (Khusus Guru):</label>
-                    <input type="password" id="password-input" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" placeholder="Masukkan password guru...">
-                </div>
-
-                <div class="flex gap-3 pt-2">
-                    <button onclick="login()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-md shadow-indigo-100 text-sm transition transform active:scale-95">Masuk</button>
-                    <button onclick="register()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl shadow-md shadow-emerald-100 text-sm transition transform active:scale-95">Daftar (Siswa)</button>
+                <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-md shadow-indigo-100 text-sm transition">Masuk</button>
+                
+                <!-- Footbar Daftar -->
+                <div class="text-center pt-4 border-t border-slate-100">
+                    <p class="text-xs text-slate-500">Belum punya akun? <button onclick="openRegisterModal()" class="text-indigo-600 font-bold hover:underline">Daftar di sini</button></p>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: DASHBOARD SISWA -->
-        <section id="siswa-dashboard" class="hidden space-y-6">
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
-                <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-                    <span>📝</span> Menu Absensi Siswa
-                </h2>
-                
-                <!-- Metode 1: Ketik Nama -->
-                <div class="mb-8 pb-6 border-b border-slate-100">
-                    <h3 class="font-semibold text-sm text-slate-700 mb-2">Metode 1: Ketik Nama Manual</h3>
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <input type="text" id="absen-nama-manual" placeholder="Ketik nama lengkap Anda..." class="flex-1 p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <button onclick="submitAbsen('Ketik Manual')" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold text-sm shadow-md shadow-blue-100 transition transform active:scale-95">Kirim Absen</button>
-                    </div>
+        <!-- MODAL / FORM PENDAFTARAN -->
+        <section id="register-section" class="hidden bg-white p-8 rounded-3xl shadow-xl max-w-md mx-auto border border-slate-100">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-900">Pendaftaran Akun 📝</h2>
+                <p class="text-sm text-slate-500 mt-1">Pilih kategori pendaftaran Anda</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Daftar Sebagai:</label>
+                    <select id="reg-role" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="siswa">Siswa</option>
+                        <option value="guru">Guru (Butuh Persetujuan Kepala Sekolah)</option>
+                    </select>
                 </div>
 
-                <!-- Metode 2: QR Code -->
                 <div>
-                    <h3 class="font-semibold text-sm text-slate-700 mb-2">Metode 2: Scan QR Code Guru</h3>
-                    <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-300 max-w-sm mx-auto">
-                        <div id="reader" class="w-full"></div>
-                    </div>
-                    <p class="text-xs text-slate-400 text-center mt-2">Arahkan kamera ke layar atau QR Code yang dibagikan guru.</p>
+                    <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Username:</label>
+                    <input type="text" id="reg-username" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Buat username...">
+                </div>
+
+                <div>
+                    <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Password:</label>
+                    <input type="password" id="reg-password" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Buat password...">
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="registerAccount()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl text-sm transition">Kirim Pendaftaran</button>
+                    <button onclick="cancelRegister()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-3 rounded-xl text-sm transition">Batal</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: DASHBOARD SISWA (Hanya Scan QR) -->
+        <section id="siswa-dashboard" class="hidden space-y-6">
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100 max-w-md mx-auto text-center">
+                <h2 class="text-xl font-bold text-slate-900 mb-2">📷 Scan QR Kehadiran</h2>
+                <p class="text-xs text-slate-500 mb-6">Arahkan kamera ke QR Code yang diberikan oleh guru untuk melakukan absensi.</p>
+                
+                <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-300">
+                    <div id="reader" class="w-full"></div>
                 </div>
             </div>
         </section>
 
         <!-- SECTION: PANEL GURU -->
         <section id="guru-dashboard" class="hidden space-y-6">
-            <!-- Panel Generate QR -->
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
-                <h2 class="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                    <span>🖨️</span> Generator QR Code Absensi
-                </h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Nama / Keterangan Sesi QR:</label>
-                        <input type="text" id="qr-text-input" placeholder="Contoh: Sesi Pagi - 7 November" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <button onclick="generateQR()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-md shadow-indigo-100 transition transform active:scale-95">Buat QR Code</button>
-                </div>
-                <div id="qrcode-container" class="flex justify-center p-6 bg-slate-50 rounded-2xl border border-slate-200 mt-4 max-w-xs mx-auto"></div>
-            </div>
-
-            <!-- Panel Data Kehadiran -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-                        <span>📊</span> Rekap Kehadiran Siswa
-                    </h2>
+                    <h2 class="text-xl font-bold text-slate-900">📊 Panel Kehadiran Siswa</h2>
                     <button onclick="loadDataAbsen()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition">🔄 Refresh</button>
                 </div>
                 <div class="overflow-x-auto rounded-2xl border border-slate-200">
@@ -128,11 +120,54 @@
                                 <th class="p-3.5 border-b">Nama Siswa</th>
                                 <th class="p-3.5 border-b">Jam Hadir</th>
                                 <th class="p-3.5 border-b">Status</th>
-                                <th class="p-3.5 border-b">Metode</th>
                             </tr>
                         </thead>
-                        <tbody id="absen-table-body" class="text-sm text-slate-600 divide-y divide-slate-100">
-                            <!-- Data dimuat lewat JS -->
+                        <tbody id="guru-absen-table" class="text-sm text-slate-600 divide-y divide-slate-100">
+                            <!-- Data dimuat via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: PANEL KEPALA SEKOLAH -->
+        <section id="kepala-dashboard" class="hidden space-y-6">
+            <!-- Approval Guru -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
+                <h2 class="text-xl font-bold text-slate-900 mb-4">✍️ Persetujuan Pendaftaran Guru</h2>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider font-semibold">
+                                <th class="p-3.5 border-b">Username Guru</th>
+                                <th class="p-3.5 border-b">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kepala-approval-table" class="text-sm text-slate-600 divide-y divide-slate-100">
+                            <!-- Data pendaftaran pending -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Monitoring Real-Time Aktivitas -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-slate-900">📡 Monitoring Aktivitas & Absensi Real-Time</h2>
+                    <button onclick="loadKepalaData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition">🔄 Refresh</button>
+                </div>
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider font-semibold">
+                                <th class="p-3.5 border-b">No</th>
+                                <th class="p-3.5 border-b">Nama Siswa</th>
+                                <th class="p-3.5 border-b">Jam</th>
+                                <th class="p-3.5 border-b">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kepala-monitor-table" class="text-sm text-slate-600 divide-y divide-slate-100">
+                            <!-- Data monitoring -->
                         </tbody>
                     </table>
                 </div>
@@ -152,35 +187,59 @@
 
         window.onload = function() {
             checkAuth();
+            // Polling Real-Time setiap 3 detik untuk memperbarui data otomatis
+            setInterval(() => {
+                if(currentUser) {
+                    if(currentUser.role === 'guru') loadDataAbsen();
+                    if(currentUser.role === 'kepala') loadKepalaData();
+                }
+            }, 3000);
         };
 
         function checkAuth() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('register-section').classList.add('hidden');
+            document.getElementById('siswa-dashboard').classList.add('hidden');
+            document.getElementById('guru-dashboard').classList.add('hidden');
+            document.getElementById('kepala-dashboard').classList.add('hidden');
+            document.getElementById('user-info').classList.add('hidden');
+
             if (currentUser) {
-                document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('user-info').classList.remove('hidden');
                 document.getElementById('welcome-msg').innerText = `${currentUser.username} (${currentUser.role.toUpperCase()})`;
 
-                if (currentUser.role === 'guru') {
-                    document.getElementById('guru-dashboard').classList.remove('hidden');
-                    loadDataAbsen();
-                } else {
+                if (currentUser.role === 'siswa') {
                     document.getElementById('siswa-dashboard').classList.remove('hidden');
                     initQrScanner();
+                } else if (currentUser.role === 'guru') {
+                    document.getElementById('guru-dashboard').classList.remove('hidden');
+                    loadDataAbsen();
+                } else if (currentUser.role === 'kepala') {
+                    document.getElementById('kepala-dashboard').classList.remove('hidden');
+                    loadKepalaData();
                 }
             } else {
                 document.getElementById('auth-section').classList.remove('hidden');
-                document.getElementById('user-info').classList.add('hidden');
-                document.getElementById('siswa-dashboard').classList.add('hidden');
-                document.getElementById('guru-dashboard').classList.add('hidden');
             }
         }
 
-        function register() {
-            const role = document.getElementById('role-select').value;
-            const username = document.getElementById('username-input').value.trim();
-            
-            if(!username) {
-                alert('Username tidak boleh kosong!');
+        function openRegisterModal() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('register-section').classList.remove('hidden');
+        }
+
+        function cancelRegister() {
+            document.getElementById('register-section').classList.add('hidden');
+            document.getElementById('auth-section').classList.remove('hidden');
+        }
+
+        function registerAccount() {
+            const role = document.getElementById('reg-role').value;
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+
+            if(!username || !password) {
+                alert('Username dan password harus diisi!');
                 return;
             }
 
@@ -190,49 +249,60 @@
                 return;
             }
 
-            users.push({ username, role });
-            localStorage.setItem('users', JSON.stringify(users));
-            alert('Pendaftaran berhasil! Silakan login.');
+            let pendingTeachers = JSON.parse(localStorage.getItem('pendingTeachers')) || [];
+            if(pendingTeachers.some(u => u.username === username)) {
+                alert('Username sudah dalam antrean pendaftaran!');
+                return;
+            }
+
+            if (role === 'siswa') {
+                users.push({ username, password, role: 'siswa' });
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Pendaftaran Siswa berhasil! Silakan login.');
+                cancelRegister();
+            } else {
+                pendingTeachers.push({ username, password });
+                localStorage.setItem('pendingTeachers', JSON.stringify(pendingTeachers));
+                alert('Pendaftaran Guru berhasil dikirim! Menunggu persetujuan Kepala Sekolah.');
+                cancelRegister();
+            }
         }
 
         function login() {
-            const role = document.getElementById('role-select').value;
-            const username = document.getElementById('username-input').value.trim();
-            const password = document.getElementById('password-input').value;
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
 
-            if (role === 'guru') {
-                if (username === 'guru' && password === 'guru123') {
-                    currentUser = { username: 'Guru Piket', role: 'guru' };
-                } else {
-                    alert('Username atau Password Guru salah!');
-                    return;
-                }
-            } else {
-                let users = JSON.parse(localStorage.getItem('users')) || [];
-                let found = users.find(u => u.username === username && u.role === 'siswa');
-                if (found) {
-                    currentUser = found;
-                } else {
-                    currentUser = { username: username || 'Siswa Tamu', role: 'siswa' };
-                }
+            // Akun Kepala Sekolah Default
+            if (username === 'kepala' && password === 'sekolah') {
+                currentUser = { username: 'Kepala Sekolah', role: 'kepala' };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                checkAuth();
+                return;
             }
 
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            checkAuth();
+            // Cek ke Database Siswa/Guru yang sudah disetujui
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            let found = users.find(u => u.username === username && u.password === password);
+
+            if (found) {
+                currentUser = found;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                checkAuth();
+            } else {
+                alert('Username atau Password salah, atau akun guru belum disetujui Kepala Sekolah!');
+            }
         }
 
         function logout() {
             localStorage.removeItem('currentUser');
             currentUser = null;
+            checkAuth();
             location.reload();
         }
 
-        function submitAbsen(metode, namaScan = null) {
-            let nama = namaScan || document.getElementById('absen-nama-manual').value.trim();
-            if (!nama) {
-                alert('Nama harus diisi!');
-                return;
-            }
+        // Absensi Siswa via Scan QR
+        function submitAbsen(namaScan) {
+            if (!namaScan) return;
 
             const now = new Date();
             const jamStr = now.toTimeString().split(' ')[0];
@@ -245,42 +315,26 @@
             }
 
             let dataAbsen = JSON.parse(localStorage.getItem('dataAbsen')) || [];
+            // Cek apakah siswa sudah absen hari ini
             dataAbsen.push({
-                nama: nama,
+                nama: namaScan,
                 jam: jamStr,
-                status: status,
-                metode: metode
+                status: status
             });
 
             localStorage.setItem('dataAbsen', JSON.stringify(dataAbsen));
-            alert(`Absensi Berhasil!\nStatus: ${status}\nJam: ${jamStr}`);
-            document.getElementById('absen-nama-manual').value = '';
+            alert(`Absensi Berhasil tercatat!\nSiswa: ${namaScan}\nStatus: ${status}\nJam: ${jamStr}`);
         }
 
-        function generateQR() {
-            const text = document.getElementById('qr-text-input').value.trim();
-            const container = document.getElementById('qrcode-container');
-            container.innerHTML = '';
-            
-            if(!text) {
-                alert('Masukkan teks/nama untuk QR Code!');
-                return;
-            }
-
-            new QRCode(container, {
-                text: text,
-                width: 160,
-                height: 160
-            });
-        }
-
+        // Load Data untuk Guru
         function loadDataAbsen() {
-            const tbody = document.getElementById('absen-table-body');
+            const tbody = document.getElementById('guru-absen-table');
+            if(!tbody) return;
             tbody.innerHTML = '';
             let dataAbsen = JSON.parse(localStorage.getItem('dataAbsen')) || [];
 
             if(dataAbsen.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada data absensi tercatat.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Belum ada data absensi tercatat.</td></tr>`;
                 return;
             }
 
@@ -292,16 +346,86 @@
                         <td class="p-3.5 border-b font-medium text-slate-800">${item.nama}</td>
                         <td class="p-3.5 border-b font-mono text-xs">${item.jam}</td>
                         <td class="p-3.5 border-b"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeColor}">${item.status}</span></td>
-                        <td class="p-3.5 border-b text-xs text-slate-500">${item.metode}</td>
                     </tr>
                 `;
             });
         }
 
+        // Load Data untuk Kepala Sekolah (Approval & Monitoring Real-Time)
+        function loadKepalaData() {
+            // Approval Table
+            const approvalTbody = document.getElementById('kepala-approval-table');
+            if(approvalTbody) {
+                approvalTbody.innerHTML = '';
+                let pendingTeachers = JSON.parse(localStorage.getItem('pendingTeachers')) || [];
+                
+                if(pendingTeachers.length === 0) {
+                    approvalTbody.innerHTML = `<tr><td colspan="2" class="p-6 text-center text-slate-400">Tidak ada pendaftaran guru yang menunggu persetujuan.</td></tr>`;
+                } else {
+                    pendingTeachers.forEach((teacher, idx) => {
+                        approvalTbody.innerHTML += `
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-3.5 border-b font-medium text-slate-800">${teacher.username}</td>
+                                <td class="p-3.5 border-b flex gap-2">
+                                    <button onclick="acceptTeacher(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Accept</button>
+                                    <button onclick="rejectTeacher(${idx})" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">Tolak</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            }
+
+            // Monitor Real-Time Table
+            const monitorTbody = document.getElementById('kepala-monitor-table');
+            if(monitorTbody) {
+                monitorTbody.innerHTML = '';
+                let dataAbsen = JSON.parse(localStorage.getItem('dataAbsen')) || [];
+
+                if(dataAbsen.length === 0) {
+                    monitorTbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Belum ada aktivitas absensi siswa.</td></tr>`;
+                    return;
+                }
+
+                dataAbsen.forEach((item, index) => {
+                    const badgeColor = item.status === 'HADIR' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
+                    monitorTbody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-3.5 border-b">${index + 1}</td>
+                            <td class="p-3.5 border-b font-medium text-slate-800">${item.nama}</td>
+                            <td class="p-3.5 border-b font-mono text-xs">${item.jam}</td>
+                            <td class="p-3.5 border-b"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeColor}">${item.status}</span></td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        function acceptTeacher(index) {
+            let pendingTeachers = JSON.parse(localStorage.getItem('pendingTeachers')) || [];
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+
+            let approved = pendingTeachers.splice(index, 1)[0];
+            users.push({ username: approved.username, password: approved.password, role: 'guru' });
+
+            localStorage.setItem('pendingTeachers', JSON.stringify(pendingTeachers));
+            localStorage.setItem('users', JSON.stringify(users));
+            alert(`Pendaftaran guru ${approved.username} berhasil disetujui!`);
+            loadKepalaData();
+        }
+
+        function rejectTeacher(index) {
+            let pendingTeachers = JSON.parse(localStorage.getItem('pendingTeachers')) || [];
+            pendingTeachers.splice(index, 1);
+            localStorage.setItem('pendingTeachers', JSON.stringify(pendingTeachers));
+            alert('Pendaftaran guru ditolak.');
+            loadKepalaData();
+        }
+
         function initQrScanner() {
             const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220 });
             scanner.render((decodedText) => {
-                submitAbsen('Scan QR', decodedText);
+                submitAbsen(decodedText);
             }, (error) => {});
         }
     </script>
