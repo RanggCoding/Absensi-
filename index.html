@@ -29,14 +29,14 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between relative">
 
-    <!-- CONTAINER DYNAMIC ISLAND PENGUMUMAN (GLOBAL UNTUK SEMUA ROLE) -->
+    <!-- CONTAINER DYNAMIC ISLAND PENGUMUMAN (GLOBAL) -->
     <div id="dynamic-island-container" class="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4"></div>
 
     <!-- CONTAINER UTAMA -->
     <div class="container mx-auto p-4 sm:p-6 max-w-4xl flex-grow">
         
         <!-- HEADER -->
-        <header class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-5 rounded-2xl shadow-lg mb-8 flex justify-between items-center relative z-10">
+        <header class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-5 rounded-2xl shadow-lg mb-8 flex justify-between items-center relative z-30">
             <div class="flex items-center gap-3">
                 <span class="text-3xl">🏫</span>
                 <div>
@@ -46,7 +46,8 @@
             </div>
             <div id="user-info" class="hidden flex items-center gap-3">
                 <span id="welcome-msg" class="text-xs sm:text-sm font-medium bg-white/10 px-3 py-1.5 rounded-full border border-white/25"></span>
-                <button onclick="logout()" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold shadow-md transition cursor-pointer relative z-20">Logout</button>
+                <!-- Tombol Logout dinaikkan z-indexnya agar tidak terhalang elemen kamera -->
+                <button onclick="logout()" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold shadow-md transition cursor-pointer relative z-40">Logout</button>
             </div>
         </header>
 
@@ -116,7 +117,7 @@
                 <p class="text-xs text-slate-500 mb-2">Arahkan kamera ke QR Code sesi guru.</p>
                 <div id="gps-status" class="text-xs font-semibold text-amber-600 mb-4 bg-amber-50 p-2 rounded-lg">Mendeteksi Lokasi GPS...</div>
                 
-                <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-300">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-300 relative z-10">
                     <div id="reader" class="w-full"></div>
                 </div>
             </div>
@@ -295,6 +296,7 @@
                     loadKepalaData();
                 }
             } else {
+                document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('auth-section').classList.remove('hidden');
             }
         }
@@ -313,6 +315,7 @@
                 expiresAt: Date.now() + (durationSec * 1000)
             };
 
+            // Menggunakan localStorage biasa agar terpantau secara global lintas tab/perangkat lokal
             localStorage.setItem('activeAnnouncement', JSON.stringify(announcementData));
             alert('Pengumuman global berhasil disiarkan!');
             document.getElementById('announcement-text').value = '';
@@ -470,25 +473,31 @@
             }
         }
 
-        // PERBAIKAN LOGOUT: Hentikan scanner kamera dengan aman sebelum reset sesi
+        // PERBAIKAN TOTAL TOMBOL LOGOUT SISWA (MENGHENTIKAN SCANNER SEBELUM REDIRECT)
         function logout() {
             if (html5QrCodeScannerInstance) {
-                html5QrCodeScannerInstance.stop().then(() => {
+                try {
+                    html5QrCodeScannerInstance.clear().then(() => {
+                        html5QrCodeScannerInstance = null;
+                        finishLogout();
+                    }).catch(() => {
+                        html5QrCodeScannerInstance = null;
+                        finishLogout();
+                    });
+                } catch (e) {
                     html5QrCodeScannerInstance = null;
-                    performLogoutCleanup();
-                }).catch(err => {
-                    console.error("Gagal menghentikan scanner:", err);
-                    performLogoutCleanup();
-                });
+                    finishLogout();
+                }
             } else {
-                performLogoutCleanup();
+                finishLogout();
             }
         }
 
-        function performLogoutCleanup() {
+        function finishLogout() {
             SecureStorage.removeItem('currentUser');
             currentUser = null;
             checkAuth();
+            location.reload();
         }
 
         function generateQR() {
