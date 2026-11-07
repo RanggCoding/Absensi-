@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Absensi Digital Multi-Role</title>
+    <title>Absensi Digital Secure & Modern</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Library QR Code -->
+    <!-- Library QR Code & Scanner -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <!-- Google Fonts Inter -->
@@ -23,8 +23,8 @@
             <div class="flex items-center gap-3">
                 <span class="text-3xl">🏫</span>
                 <div>
-                    <h1 class="text-lg sm:text-xl font-bold tracking-tight">Absensi Digital Sekolah</h1>
-                    <p class="text-xs text-indigo-200">Sistem Kehadiran Terpadu & Real-Time</p>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight">Absensi Digital Secure</h1>
+                    <p class="text-xs text-indigo-200">Sistem Keamanan Berlapis & Real-Time</p>
                 </div>
             </div>
             <div id="user-info" class="hidden flex items-center gap-3">
@@ -53,7 +53,6 @@
 
                 <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-md shadow-indigo-100 text-sm transition">Masuk</button>
                 
-                <!-- Footbar Daftar -->
                 <div class="text-center pt-4 border-t border-slate-100">
                     <p class="text-xs text-slate-500">Belum punya akun? <button onclick="openRegisterModal()" class="text-indigo-600 font-bold hover:underline">Daftar di sini</button></p>
                 </div>
@@ -93,11 +92,12 @@
             </div>
         </section>
 
-        <!-- SECTION: DASHBOARD SISWA (Hanya Scan QR) -->
+        <!-- SECTION: DASHBOARD SISWA (Scan QR + Geofencing) -->
         <section id="siswa-dashboard" class="hidden space-y-6">
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100 max-w-md mx-auto text-center">
                 <h2 class="text-xl font-bold text-slate-900 mb-2">📷 Scan QR Kehadiran</h2>
-                <p class="text-xs text-slate-500 mb-6">Arahkan kamera ke QR Code yang diberikan oleh guru untuk melakukan absensi.</p>
+                <p class="text-xs text-slate-500 mb-2">Pastikan Anda berada di area sekolah (Validasi GPS aktif).</p>
+                <div id="gps-status" class="text-xs font-semibold text-amber-600 mb-4 bg-amber-50 p-2 rounded-lg">Mendeteksi Lokasi GPS...</div>
                 
                 <div class="bg-slate-50 p-4 rounded-2xl border border-dashed border-slate-300">
                     <div id="reader" class="w-full"></div>
@@ -107,15 +107,15 @@
 
         <!-- SECTION: PANEL GURU -->
         <section id="guru-dashboard" class="hidden space-y-6">
-            <!-- Generator QR Code -->
+            <!-- Generator QR Dinamis -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
-                <h2 class="text-xl font-bold text-slate-900 mb-4">🖨️ Generator QR Code Absensi</h2>
+                <h2 class="text-xl font-bold text-slate-900 mb-4">🖨️ Generator QR (Berlaku 10 Menit)</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Nama / Keterangan Sesi QR:</label>
-                        <input type="text" id="qr-text-input" placeholder="Contoh: Sesi Pagi - 7 November" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Nama / Keterangan Sesi:</label>
+                        <input type="text" id="qr-text-input" placeholder="Contoh: Sesi Pagi" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
-                    <button onclick="generateQR()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-md shadow-indigo-100 transition">Buat QR Code</button>
+                    <button onclick="generateQR()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-md shadow-indigo-100 transition">Buat QR Aman</button>
                 </div>
                 <div id="qrcode-container" class="flex justify-center p-6 bg-slate-50 rounded-2xl border border-slate-200 mt-4 max-w-xs mx-auto"></div>
             </div>
@@ -132,13 +132,12 @@
                             <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider font-semibold">
                                 <th class="p-3.5 border-b">No</th>
                                 <th class="p-3.5 border-b">Nama Siswa</th>
+                                <th class="p-3.5 border-b">Sesi</th>
                                 <th class="p-3.5 border-b">Jam Hadir</th>
                                 <th class="p-3.5 border-b">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="guru-absen-table" class="text-sm text-slate-600 divide-y divide-slate-100">
-                            <!-- Data dimuat via JS -->
-                        </tbody>
+                        <tbody id="guru-absen-table" class="text-sm text-slate-600 divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
@@ -146,7 +145,6 @@
 
         <!-- SECTION: PANEL KEPALA SEKOLAH -->
         <section id="kepala-dashboard" class="hidden space-y-6">
-            <!-- Approval Guru -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
                 <h2 class="text-xl font-bold text-slate-900 mb-4">✍️ Persetujuan Pendaftaran Guru</h2>
                 <div class="overflow-x-auto rounded-2xl border border-slate-200">
@@ -157,14 +155,11 @@
                                 <th class="p-3.5 border-b">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="kepala-approval-table" class="text-sm text-slate-600 divide-y divide-slate-100">
-                            <!-- Data pendaftaran pending -->
-                        </tbody>
+                        <tbody id="kepala-approval-table" class="text-sm text-slate-600 divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Monitoring Real-Time Aktivitas -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold text-slate-900">📡 Monitoring Aktivitas & Absensi Real-Time</h2>
@@ -176,13 +171,12 @@
                             <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider font-semibold">
                                 <th class="p-3.5 border-b">No</th>
                                 <th class="p-3.5 border-b">Nama Siswa</th>
+                                <th class="p-3.5 border-b">Sesi</th>
                                 <th class="p-3.5 border-b">Jam</th>
                                 <th class="p-3.5 border-b">Status</th>
                             </tr>
                         </thead>
-                        <tbody id="kepala-monitor-table" class="text-sm text-slate-600 divide-y divide-slate-100">
-                            <!-- Data monitoring -->
-                        </tbody>
+                        <tbody id="kepala-monitor-table" class="text-sm text-slate-600 divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
@@ -192,16 +186,46 @@
 
     <!-- FOOTER -->
     <footer class="text-center py-6 text-xs text-slate-400">
-        Absensi Digital Sekolah &copy; 2026
+        Absensi Digital Secure &copy; 2026
     </footer>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT LOGIC + KEAMANAN BERLAPIS -->
     <script>
-        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        // Helper Enkripsi Sederhana untuk LocalStorage (Opsi 4)
+        const SecureStorage = {
+            encrypt(data) {
+                return btoa(encodeURIComponent(JSON.stringify(data)));
+            },
+            decrypt(cipher) {
+                try {
+                    return JSON.parse(decodeURIComponent(atob(cipher)));
+                } catch (e) {
+                    return null;
+                }
+            },
+            getItem(key) {
+                let val = localStorage.getItem(key);
+                return val ? this.decrypt(val) : null;
+            },
+            setItem(key, data) {
+                localStorage.setItem(key, this.encrypt(data));
+            },
+            removeItem(key) {
+                localStorage.removeItem(key);
+            }
+        };
+
+        let currentUser = SecureStorage.getItem('currentUser') || null;
+        let html5QrCode = null;
+        let studentCoords = null;
+
+        // Simulasi koordinat sekolah (Contoh titik pusat sekolah dengan radius 500 meter)
+        const SCHOOL_LAT = -6.200000;
+        const SCHOOL_LNG = 106.816666;
+        const MAX_RADIUS_METERS = 500; 
 
         window.onload = function() {
             checkAuth();
-            // Polling Real-Time setiap 3 detik untuk memperbarui data otomatis
             setInterval(() => {
                 if(currentUser) {
                     if(currentUser.role === 'guru') loadDataAbsen();
@@ -224,6 +248,7 @@
 
                 if (currentUser.role === 'siswa') {
                     document.getElementById('siswa-dashboard').classList.remove('hidden');
+                    initGeolocation();
                     initQrScanner();
                 } else if (currentUser.role === 'guru') {
                     document.getElementById('guru-dashboard').classList.remove('hidden');
@@ -235,6 +260,48 @@
             } else {
                 document.getElementById('auth-section').classList.remove('hidden');
             }
+        }
+
+        // Validasi Geofencing GPS (Opsi 2)
+        function initGeolocation() {
+            const gpsStatus = document.getElementById('gps-status');
+            if (!navigator.geolocation) {
+                gpsStatus.innerText = "⚠️ Browser tidak mendukung GPS!";
+                gpsStatus.className = "text-xs font-semibold text-rose-600 mb-4 bg-rose-50 p-2 rounded-lg";
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition((position) => {
+                studentCoords = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                
+                // Hitung jarak sederhana (Haversine formula singkat)
+                let distance = calculateDistance(studentCoords.lat, studentCoords.lng, SCHOOL_LAT, SCHOOL_LNG);
+                
+                if (distance <= MAX_RADIUS_METERS) {
+                    gpsStatus.innerText = `✅ GPS Terverifikasi: Berada di area sekolah (${Math.round(distance)}m)`;
+                    gpsStatus.className = "text-xs font-semibold text-emerald-600 mb-4 bg-emerald-50 p-2 rounded-lg";
+                } else {
+                    gpsStatus.innerText = `❌ Peringatan: Anda berada di luar area sekolah (${Math.round(distance)}m dari titik pusat)!`;
+                    gpsStatus.className = "text-xs font-semibold text-rose-600 mb-4 bg-rose-50 p-2 rounded-lg";
+                }
+            }, (error) => {
+                gpsStatus.innerText = "⚠️ Gagal mendeteksi GPS. Mohon izinkan akses lokasi.";
+                gpsStatus.className = "text-xs font-semibold text-amber-600 mb-4 bg-amber-50 p-2 rounded-lg";
+            }, { enableHighAccuracy: true });
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            let R = 6371e3; // Radius bumi dalam meter
+            let dLat = (lat2 - lat1) * Math.PI / 180;
+            let dLon = (lon2 - lon1) * Math.PI / 180;
+            let a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
         }
 
         function openRegisterModal() {
@@ -257,13 +324,13 @@
                 return;
             }
 
-            let users = JSON.parse(localStorage.getItem('users')) || [];
+            let users = SecureStorage.getItem('users') || [];
             if(users.some(u => u.username === username)) {
                 alert('Username sudah terdaftar!');
                 return;
             }
 
-            let pendingTeachers = JSON.parse(localStorage.getItem('pendingTeachers')) || [];
+            let pendingTeachers = SecureStorage.getItem('pendingTeachers') || [];
             if(pendingTeachers.some(u => u.username === username)) {
                 alert('Username sudah dalam antrean pendaftaran!');
                 return;
@@ -271,12 +338,12 @@
 
             if (role === 'siswa') {
                 users.push({ username, password, role: 'siswa' });
-                localStorage.setItem('users', JSON.stringify(users));
+                SecureStorage.setItem('users', users);
                 alert('Pendaftaran Siswa berhasil! Silakan login.');
                 cancelRegister();
             } else {
                 pendingTeachers.push({ username, password });
-                localStorage.setItem('pendingTeachers', JSON.stringify(pendingTeachers));
+                SecureStorage.setItem('pendingTeachers', pendingTeachers);
                 alert('Pendaftaran Guru berhasil dikirim! Menunggu persetujuan Kepala Sekolah.');
                 cancelRegister();
             }
@@ -286,21 +353,19 @@
             const username = document.getElementById('login-username').value.trim();
             const password = document.getElementById('login-password').value;
 
-            // Akun Kepala Sekolah Default
             if (username === 'kepala' && password === 'sekolah') {
                 currentUser = { username: 'Kepala Sekolah', role: 'kepala' };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                SecureStorage.setItem('currentUser', currentUser);
                 checkAuth();
                 return;
             }
 
-            // Cek ke Database Siswa/Guru yang sudah disetujui
-            let users = JSON.parse(localStorage.getItem('users')) || [];
+            let users = SecureStorage.getItem('users') || [];
             let found = users.find(u => u.username === username && u.password === password);
 
             if (found) {
                 currentUser = found;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                SecureStorage.setItem('currentUser', currentUser);
                 checkAuth();
             } else {
                 alert('Username atau Password salah, atau akun guru belum disetujui Kepala Sekolah!');
@@ -308,16 +373,76 @@
         }
 
         function logout() {
-            localStorage.removeItem('currentUser');
+            if (html5QrCode) {
+                html5QrCode.stop().catch(err => console.log(err));
+            }
+            SecureStorage.removeItem('currentUser');
             currentUser = null;
             checkAuth();
             location.reload();
         }
 
-        // Absensi Siswa via Scan QR
-        function submitAbsen(namaScan) {
-            if (!namaScan) return;
+        // Generate QR Code Dinamis dengan Timestamp Kedaluwarsa 10 Menit (Opsi 1)
+        function generateQR() {
+            const text = document.getElementById('qr-text-input').value.trim();
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = '';
+            
+            if(!text) {
+                alert('Masukkan nama/keterangan sesi untuk QR Code!');
+                return;
+            }
 
+            // Buat token berisi: NamaSesi | WaktuPembuatanTimestamp
+            let expiryTime = Date.now() + (10 * 60 * 1000); // Berlaku 10 menit
+            let secureToken = `${text}__EXPR__${expiryTime}`;
+
+            new QRCode(container, {
+                text: secureToken,
+                width: 160,
+                height: 160
+            });
+            alert(`QR Code "${text}" berhasil dibuat! Berlaku selama 10 menit.`);
+        }
+
+        // Absensi Siswa dengan Validasi QR Dinamis & GPS
+        let isSubmitting = false;
+        function submitAbsen(decodedToken) {
+            if (!decodedToken || isSubmitting) return;
+            isSubmitting = true;
+
+            // Validasi Geofencing GPS (Opsi 2)
+            if (studentCoords) {
+                let distance = calculateDistance(studentCoords.lat, studentCoords.lng, SCHOOL_LAT, SCHOOL_LNG);
+                if (distance > MAX_RADIUS_METERS) {
+                    alert(`❌ Absensi Ditolak! Anda berada di luar radius sekolah (${Math.round(distance)}m dari titik pusat).`);
+                    setTimeout(() => { isSubmitting = false; }, 3000);
+                    return;
+                }
+            } else {
+                alert("⚠️ Lokasi GPS belum terdeteksi. Pastikan izin lokasi aktif.");
+                setTimeout(() => { isSubmitting = false; }, 3000);
+                return;
+            }
+
+            // Validasi QR Dinamis (Opsi 1)
+            let parts = decodedToken.split('__EXPR__');
+            if (parts.length < 2) {
+                alert("❌ QR Code tidak valid atau kedaluwarsa!");
+                setTimeout(() => { isSubmitting = false; }, 3000);
+                return;
+            }
+
+            let sesiName = parts[0];
+            let expiryTime = parseInt(parts[1]);
+
+            if (Date.now() > expiryTime) {
+                alert("❌ QR Code sudah KEDALUWARSA! Sesi absensi ini telah ditutup.");
+                setTimeout(() => { isSubmitting = false; }, 3000);
+                return;
+            }
+
+            const namaSiswa = currentUser.username;
             const now = new Date();
             const jamStr = now.toTimeString().split(' ')[0];
             const hours = now.getHours();
@@ -328,44 +453,35 @@
                 status = 'TERLAMBAT';
             }
 
-            let dataAbsen = JSON.parse(localStorage.getItem('dataAbsen')) || [];
+            let dataAbsen = SecureStorage.getItem('dataAbsen') || [];
+            let sudahAbsen = dataAbsen.some(item => item.nama === namaSiswa && item.sesi === sesiName);
+            if (sudahAbsen) {
+                alert(`⚠️ ${namaSiswa}, Anda sudah melakukan absensi untuk sesi "${sesiName}" ini sebelumnya!`);
+                setTimeout(() => { isSubmitting = false; }, 3000);
+                return;
+            }
+
             dataAbsen.push({
-                nama: namaScan,
+                nama: namaSiswa,
+                sesi: sesiName,
                 jam: jamStr,
                 status: status
             });
 
-            localStorage.setItem('dataAbsen', JSON.stringify(dataAbsen));
-            alert(`Absensi Berhasil tercatat!\nSiswa: ${namaScan}\nStatus: ${status}\nJam: ${jamStr}`);
-        }
-
-        // Generate QR Code oleh Guru
-        function generateQR() {
-            const text = document.getElementById('qr-text-input').value.trim();
-            const container = document.getElementById('qrcode-container');
-            container.innerHTML = '';
+            SecureStorage.setItem('dataAbsen', dataAbsen);
+            alert(`✅ Absensi Berhasil Tercatat!\n\nSiswa: ${namaSiswa}\nSesi: ${sesiName}\nStatus: ${status}\nJam: ${jamStr}`);
             
-            if(!text) {
-                alert('Masukkan nama/keterangan untuk QR Code!');
-                return;
-            }
-
-            new QRCode(container, {
-                text: text,
-                width: 160,
-                height: 160
-            });
+            setTimeout(() => { isSubmitting = false; }, 3000);
         }
 
-        // Load Data untuk Guru
         function loadDataAbsen() {
             const tbody = document.getElementById('guru-absen-table');
             if(!tbody) return;
             tbody.innerHTML = '';
-            let dataAbsen = JSON.parse(localStorage.getItem('dataAbsen')) || [];
+            let dataAbsen = SecureStorage.getItem('dataAbsen') || [];
 
             if(dataAbsen.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Belum ada data absensi tercatat.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada data absensi tercatat.</td></tr>`;
                 return;
             }
 
@@ -375,6 +491,7 @@
                     <tr class="hover:bg-slate-50 transition">
                         <td class="p-3.5 border-b">${index + 1}</td>
                         <td class="p-3.5 border-b font-medium text-slate-800">${item.nama}</td>
+                        <td class="p-3.5 border-b text-indigo-600 font-semibold">${item.sesi || '-'}</td>
                         <td class="p-3.5 border-b font-mono text-xs">${item.jam}</td>
                         <td class="p-3.5 border-b"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeColor}">${item.status}</span></td>
                     </tr>
@@ -382,13 +499,11 @@
             });
         }
 
-        // Load Data untuk Kepala Sekolah (Approval & Monitoring Real-Time)
         function loadKepalaData() {
-            // Approval Table
             const approvalTbody = document.getElementById('kepala-approval-table');
             if(approvalTbody) {
                 approvalTbody.innerHTML = '';
-                let pendingTeachers = JSON.parse(localStorage.getItem('pendingTeachers')) || [];
+                let pendingTeachers = SecureStorage.getItem('pendingTeachers') || [];
                 
                 if(pendingTeachers.length === 0) {
                     approvalTbody.innerHTML = `<tr><td colspan="2" class="p-6 text-center text-slate-400">Tidak ada pendaftaran guru yang menunggu persetujuan.</td></tr>`;
@@ -407,14 +522,13 @@
                 }
             }
 
-            // Monitor Real-Time Table
             const monitorTbody = document.getElementById('kepala-monitor-table');
             if(monitorTbody) {
                 monitorTbody.innerHTML = '';
-                let dataAbsen = JSON.parse(localStorage.getItem('dataAbsen')) || [];
+                let dataAbsen = SecureStorage.getItem('dataAbsen') || [];
 
                 if(dataAbsen.length === 0) {
-                    monitorTbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">Belum ada aktivitas absensi siswa.</td></tr>`;
+                    monitorTbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Belum ada aktivitas absensi siswa.</td></tr>`;
                     return;
                 }
 
@@ -424,6 +538,7 @@
                         <tr class="hover:bg-slate-50 transition">
                             <td class="p-3.5 border-b">${index + 1}</td>
                             <td class="p-3.5 border-b font-medium text-slate-800">${item.nama}</td>
+                            <td class="p-3.5 border-b text-indigo-600 font-semibold">${item.sesi || '-'}</td>
                             <td class="p-3.5 border-b font-mono text-xs">${item.jam}</td>
                             <td class="p-3.5 border-b"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeColor}">${item.status}</span></td>
                         </tr>
@@ -433,29 +548,30 @@
         }
 
         function acceptTeacher(index) {
-            let pendingTeachers = JSON.parse(localStorage.getItem('pendingTeachers')) || [];
-            let users = JSON.parse(localStorage.getItem('users')) || [];
+            let pendingTeachers = SecureStorage.getItem('pendingTeachers') || [];
+            let users = SecureStorage.getItem('users') || [];
 
             let approved = pendingTeachers.splice(index, 1)[0];
             users.push({ username: approved.username, password: approved.password, role: 'guru' });
 
-            localStorage.setItem('pendingTeachers', JSON.stringify(pendingTeachers));
-            localStorage.setItem('users', JSON.stringify(users));
+            SecureStorage.setItem('pendingTeachers', pendingTeachers);
+            SecureStorage.setItem('users', users);
             alert(`Pendaftaran guru ${approved.username} berhasil disetujui!`);
             loadKepalaData();
         }
 
         function rejectTeacher(index) {
-            let pendingTeachers = JSON.parse(localStorage.getItem('pendingTeachers')) || [];
+            let pendingTeachers = SecureStorage.getItem('pendingTeachers') || [];
             pendingTeachers.splice(index, 1);
-            localStorage.setItem('pendingTeachers', JSON.stringify(pendingTeachers));
+            SecureStorage.setItem('pendingTeachers', pendingTeachers);
             alert('Pendaftaran guru ditolak.');
             loadKepalaData();
         }
 
         function initQrScanner() {
-            const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220 });
-            scanner.render((decodedText) => {
+            if (html5QrCode) return;
+            html5QrCode = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220 });
+            html5QrCode.render((decodedText) => {
                 submitAbsen(decodedText);
             }, (error) => {});
         }
