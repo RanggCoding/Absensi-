@@ -107,6 +107,20 @@
 
         <!-- SECTION: PANEL GURU -->
         <section id="guru-dashboard" class="hidden space-y-6">
+            <!-- Generator QR Code -->
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
+                <h2 class="text-xl font-bold text-slate-900 mb-4">🖨️ Generator QR Code Absensi</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-1.5">Nama / Keterangan Sesi QR:</label>
+                        <input type="text" id="qr-text-input" placeholder="Contoh: Sesi Pagi - 7 November" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <button onclick="generateQR()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-xl text-sm shadow-md shadow-indigo-100 transition">Buat QR Code</button>
+                </div>
+                <div id="qrcode-container" class="flex justify-center p-6 bg-slate-50 rounded-2xl border border-slate-200 mt-4 max-w-xs mx-auto"></div>
+            </div>
+
+            <!-- Panel Kehadiran Siswa -->
             <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-100">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold text-slate-900">📊 Panel Kehadiran Siswa</h2>
@@ -315,7 +329,6 @@
             }
 
             let dataAbsen = JSON.parse(localStorage.getItem('dataAbsen')) || [];
-            // Cek apakah siswa sudah absen hari ini
             dataAbsen.push({
                 nama: namaScan,
                 jam: jamStr,
@@ -324,6 +337,24 @@
 
             localStorage.setItem('dataAbsen', JSON.stringify(dataAbsen));
             alert(`Absensi Berhasil tercatat!\nSiswa: ${namaScan}\nStatus: ${status}\nJam: ${jamStr}`);
+        }
+
+        // Generate QR Code oleh Guru
+        function generateQR() {
+            const text = document.getElementById('qr-text-input').value.trim();
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = '';
+            
+            if(!text) {
+                alert('Masukkan nama/keterangan untuk QR Code!');
+                return;
+            }
+
+            new QRCode(container, {
+                text: text,
+                width: 160,
+                height: 160
+            });
         }
 
         // Load Data untuk Guru
